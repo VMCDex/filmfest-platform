@@ -1,61 +1,115 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400"></a></p>
+# KIFF-Platform
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+Веб-платформа для автоматизации международного кинофестиваля: приём заявок от участников, модерация организаторами, оценки жюри, голосование и билеты для зрителей, отчёты и аналитика.
 
-## About Laravel
+Дипломный проект. Разработан с нуля по стандартам ГОСТ 34.602-2020.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Роли и возможности
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+В системе 5 ролей, у каждой свой кабинет. Доступ ограничивается middleware `role` (`app/Http/Middleware/CheckRole.php`): чужой раздел возвращает 403, гостя перенаправляет на вход.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Роль | Что может |
+| --- | --- |
+| Администратор | создавать пользователей, менять роль и статус, блокировать и удалять |
+| Организатор | создавать, публиковать и архивировать мероприятия; одобрять и отклонять заявки; смотреть отчёты и экспортировать их |
+| Участник | добавлять фильмы (постер, трейлер) и подавать заявки на мероприятия |
+| Жюри | оценивать одобренные фильмы по 5 критериям (сценарий, режиссура, актёры, операторская работа, звук) |
+| Зритель | покупать билеты с выбором места, голосовать за фильмы, оставлять отзывы |
 
-## Learning Laravel
+Дополнительно:
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- одобренная заявка автоматически одобряет фильм;
+- участнику уходит email об изменении статуса заявки;
+- итоговая оценка жюри считается автоматически как среднее по пяти критериям;
+- повторные действия блокируются: вторая оценка жюри, занятое место, повторный голос;
+- отчёты с графиками Chart.js: заявки по статусам, продажи билетов, отзывы, голоса зрителей, оценки жюри;
+- экспорт отчётов в Excel (CSV) и печатная версия для сохранения в PDF;
+- заблокированный администратором пользователь не может войти.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Безопасность
 
-## Laravel Sponsors
+- CSRF-токены во всех формах;
+- экранирование вывода в Blade (защита от XSS);
+- Eloquent и параметризованные запросы (защита от SQL-инъекций);
+- хеширование паролей;
+- валидация загружаемых постеров (`jpeg`, `png`, `jpg`, до 2 МБ);
+- разграничение доступа по ролям на уровне маршрутов.
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+## Стек
 
-### Premium Partners
+- PHP 8.2+, Laravel 12
+- SQLite по умолчанию, MySQL поддерживается через `.env`
+- Blade, JavaScript, Chart.js (подключается с CDN)
+- PHPUnit: 15 feature-тестов
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[OP.GG](https://op.gg)**
+## Быстрый старт
 
-## Contributing
+Нужны PHP 8.2+ и Composer. Самый простой способ поставить их на Windows и macOS: [Laravel Herd](https://herd.laravel.com).
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+git clone https://github.com/VMCDex/filmfest-platform.git
+cd filmfest-platform
+composer install
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite
+php artisan migrate --seed
+php artisan storage:link
+php artisan serve
+```
 
-## Code of Conduct
+Сайт откроется на http://127.0.0.1:8000. Команда `migrate --seed` создаёт таблицы и демо-данные: мероприятия, фильмы, заявки, оценки, билет, голос и отзыв.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Демо-аккаунты
 
-## Security Vulnerabilities
+Пароль у всех: `password`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+| Роль | Email |
+| --- | --- |
+| Администратор | `admin@kiff.test` |
+| Организатор | `organizer@kiff.test` |
+| Участник | `participant@kiff.test` |
+| Жюри | `jury@kiff.test` |
+| Зритель | `visitor@kiff.test` |
 
-## License
+Новые пользователи, которые регистрируются сами, получают роль «зритель». Остальные роли выдаёт администратор.
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+## Настройка
+
+- **MySQL.** В `.env` укажите `DB_CONNECTION=mysql` и параметры `DB_HOST`, `DB_DATABASE`, `DB_USERNAME`, `DB_PASSWORD`, затем выполните `php artisan migrate --seed`.
+- **Почта.** По умолчанию `MAIL_MAILER=log`, письма пишутся в `storage/logs/laravel.log`. Для реальной отправки укажите SMTP в переменных `MAIL_*`.
+- **Постеры фильмов** хранятся в `storage/app/public`. Команда `php artisan storage:link` делает их доступными в браузере.
+
+## Тесты
+
+```bash
+php artisan test
+```
+
+Тесты покрывают доступ по ролям, регистрацию и вход, одобрение заявок, оценки жюри, билеты, голосование, отчёты и сидер. Для них используется база SQLite в памяти, ваши данные они не трогают.
+
+## Структура
+
+```text
+app/
+  Http/Controllers/
+    Admin/        управление пользователями
+    Auth/         регистрация и вход
+    Organizer/    мероприятия, заявки, отчёты
+    Participant/  фильмы и заявки участника
+    Jury/         оценки жюри
+    Visitor/      билеты, голоса, отзывы
+  Http/Middleware/CheckRole.php
+  Mail/ApplicationStatusChanged.php
+  Models/         Application, Event, Film, JuryScore, Review, Ticket, User, Vote
+database/
+  migrations/     схема БД
+  seeders/        демо-данные
+resources/views/  Blade-шаблоны по ролям
+routes/web.php    маршруты
+tests/Feature/    автотесты
+```
+
+## Автор
+
+Арсений Сейранян. [GitHub](https://github.com/VMCDex), [Telegram](https://t.me/VMCDex)
