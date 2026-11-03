@@ -130,7 +130,7 @@
                 </form>
             @else
                 <div class="reviewer-comment">
-                    <strong>Решение:</strong> {{ ucfirst($app->status) }}<br>
+                    <strong>Решение:</strong> {{ ['approved'=>'Одобрено','rejected'=>'Отклонено'][$app->status] ?? ucfirst($app->status) }}<br>
                     @if($app->comment)
                     <div style="margin-top:5px; opacity: 0.9;">💬 {{ $app->comment }}</div>
                     @endif

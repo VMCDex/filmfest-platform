@@ -16,4 +16,18 @@ class JuryScore extends Model
     ];
 
     public $timestamps = false;
+
+    // Итоговая оценка — среднее по пяти критериям
+    protected static function booted()
+    {
+        static::saving(function (JuryScore $score) {
+            $score->total_score = round((
+                $score->criterion_script
+                + $score->criterion_director
+                + $score->criterion_acting
+                + $score->criterion_cinematography
+                + $score->criterion_sound
+            ) / 5, 2);
+        });
+    }
 }

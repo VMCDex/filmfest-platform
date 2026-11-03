@@ -9,8 +9,10 @@ class Ticket extends Model
     protected $fillable = [
         'user_id',
         'event_id',
-        'purchased_at',
+        'seat_number',
+        'price',
         'status',
+        'paid_at',
     ];
 
     public function event()

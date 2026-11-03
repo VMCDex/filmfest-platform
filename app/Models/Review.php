@@ -10,7 +10,8 @@ class Review extends Model
         'user_id',
         'film_id',
         'rating',
-        'comment',
+        'text',
+        'status',
     ];
 
     public function film()
